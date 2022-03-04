@@ -10,7 +10,7 @@ Needed: (All Plugins are in .zip folder)
 - SKUtillties (Cant find trust worthly link)
 - FastAsyncWorldEdit (Link: https://github.com/IntellectualSites/FastAsyncWorldEdit/releases)
 - Vault (Link: https://dev.bukkit.org/projects/vault)
-- Any permission plugin
+- Any permission plugin (Will have to intall your self)
 - Any plugin I forgot is in the Folder!
 
 
