@@ -1,0 +1,58 @@
+on death of player:
+    if attacker is a player:
+        if projectile is set:
+            if victim is player:
+                set the death message to "&c%victim% &7was shot by &c%attacker%&7!"
+                stop
+
+    if attacker is not a player:
+        if attacker is set:
+            if victim is player:
+                set the death message to "&c%victim% &7was killed by a &c%attacker%&7!"
+                stop
+
+    if attacker is a player:
+        if attacker is set:
+            if victim is player:
+                set the death message to "&c%victim% &7was beaten to death by &c%attacker%&7!"
+                stop
+
+    if damage was caused by potion:
+        if victim is player:
+            set the death message to "&c%victim% &7was killed by &e&k--&7magic&e&k--&7."
+            stop
+
+    if damage was caused by fall:
+        if victim is player:
+            set the death message to "&c%victim% &7tried the leap of faith."
+            stop
+
+    if damage was caused by lava:
+        if victim is player:
+            set the death message to "&c%victim% &7thought swimming in lava was a good idea."
+            stop
+
+    if damage was caused by burning:
+        if victim is player:
+            set the death message to "&c%victim% &7just got Roasted."
+            stop
+
+    if damage was caused by drown:
+        if victim is player:
+            set the death message to "&c%victim% &7never learned how to swim."
+            stop
+
+    if damage was caused by starvation:
+        if victim is player:
+            set the death message to "&c%victim% &7was starved to death."
+            stop
+
+    if damage was caused by lightning:
+        if victim is player:
+            set the death message to "&c%victim% &7was struck by lightning."
+            stop
+
+    if damage was caused by block explosion:
+        if victim is player:
+            set the death message to "&c%victim% &7was blown to bits."
+            stop

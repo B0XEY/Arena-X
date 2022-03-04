@@ -1,0 +1,31 @@
+options:
+	p: &3Arena &bX &8| &7
+	world: void
+	
+	
+	
+	distime: 5 minutes
+	helptime: 2 minutes 30 seconds
+	#time: 5 minutes
+
+
+every 10 minutes in "{@world}":
+	loop all players:
+		make loop-player say "/discord"
+		
+every 4 minutes 30 seconds in "{@world}":
+	broadcast " "
+	broadcast "{@p}Need help in joining a game?"
+	broadcast "{@p}Do &c/Joingame&7 or cilck your emerald to start!"
+	broadcast " "
+	loop all players:
+		play sound "block.note_block.pling" with volume 0.5 to the loop-player
+		
+		
+every 8 minutes in "{@world}":
+	broadcast " "
+	broadcast "{@p}Make sure to join the &bDiscord"
+	broadcast "{@p}Use &c/discord&7 to get started!"
+	broadcast " "
+	loop all players:
+		play sound "block.note_block.pling" with volume 0.5 to the loop-player

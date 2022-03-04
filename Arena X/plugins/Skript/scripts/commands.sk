@@ -1,0 +1,1257 @@
+options:
+	team1: Red #Team Name
+	team2: Blue #Team Name
+	team1Block: red_wool #Only for wool color
+	team2Block: light_blue_wool #Only for wool color
+	
+	p: &3Arena &bX &8| &7 #The server prefix
+	perm: Arena.admin
+	teampickperm: team.pick
+	permmsg: &cHey!&7 You can't do this
+	world: world #What world will the events happen in
+	file: paper #item to show that a file exist
+	nofile: red dye #item to show that a file does not exist
+	
+	server: &3Arena &bX #Server name
+	ip: &7BoxArenaX.minehut.gg #Server IP
+	discord: https://discord.gg/gya2UxAexc #Server Discord
+	
+	autostart: false #say games will auto start
+	autostartime: 5 minutes #Time beween each auto start
+	
+	mode: %{mode}% #Can Be TDM OR DTM OR OFF ?NOT BOTH?
+	timelimit: 150 #MUST BE IN SECONDS
+	rotatemaps: true #Say if you have many maps set up
+	Maps: 4 # The number of maps
+	
+	Teamlives: 7 #Each teams lifes / ONLY IM TDM
+	total: 36 #The total amont of blocks in each moument / ONLY IN DTM
+	
+#Neat NESS	
+on join:
+	set join message to "&7[&a&l+&7] %player%"
+	wait 5 ticks
+	teleport player to {specspawn}
+	set player's gamemode to adventure
+	apply potion of invisibility of tier 1 to player for 10000 seconds
+	set player's flight mode to true
+	clear player's inventory
+	wait 2 ticks
+	set slot 4 of player to emerald named "&aPick team"
+
+on quit:
+	set leave message to "&7[&c&l-&7] %player%"
+
+
+on chat:
+	set the chat format to "%player's prefix% &7%player% &r➢ %message%"
+	loop {{@team1}team::*}:
+		if loop-value is player:
+			set the chat format to "%player's prefix% &c%player% &r➢ %message%"
+			exit loop
+	loop {{@team2}team::*}:
+		if loop-value is player:
+			set the chat format to "%player's prefix% &b%player% &r➢ %message%"
+			
+#AUTO START STUFF
+every {@autostartime} in world "{@world}":
+	if {@autostart} is true:
+		loop all players:
+			make loop-player say "/leavegame"
+			wait 5 ticks
+			make loop-player say "/joingame"
+		wait 10 ticks
+		execute console command "/startgame"
+
+
+#STUFF
+every second in world "{@world}":
+	if "{@mode}" is "DTM" or "dtm":
+		if {countdown} is not set:
+			set {timeleft} to {timeleft} - 1
+		else:
+			set {timeleft} to 0
+		if {timeleft} is -1:
+			if {{@team1}monumenthealth} is more than {{@team2}monumenthealth}:
+				execute console command "/endgame {@team1}"
+				execute console command "/repair"
+				stop
+			if {{@team2}monumenthealth} is more than {{@team1}monumenthealth}:
+				execute console command "/endgame {@team2}"
+				execute console command "/repair"
+				stop
+			if {{@team1}monumenthealth} is equal to {{@team2}monumenthealth}:
+				execute console command "/endgame Tie"
+				execute console command "/repair"
+				stop
+	if "{@mode}" is "TDM" or "tdm":
+		if {countdown} is not set:
+			set {timeleft} to {timeleft} - 1
+		else:
+			set {timeleft} to 0
+		if {timeleft} is -1:
+			if {{@team1}lifes} is more than {{@team2}lifes}:
+				execute console command "/endgame {@team1}"
+				execute console command "/repair"
+				stop
+			if {{@team2}lifes} is more than {{@team1}lifes}:
+				execute console command "/endgame {@team2}"
+				execute console command "/repair"
+				stop
+			if {{@team1}lifes} is equal to {{@team2}lifes}:
+				execute console command "/endgame Tie"
+				execute console command "/repair"
+				stop
+	#SIDE BAR
+	loop all players:
+		if y coord of loop-player is below 60:
+			kill loop-player
+		set {team.%loop-player%} to "&7None"
+		loop {{@team1}team::*}:
+			if loop-value-2 is loop-player:
+				set {team.%loop-player%} to "&c{@team1}"
+		loop {{@team2}team::*}:
+			if loop-value-2 is loop-player:
+				set {team.%loop-player%} to "&b{@team2}"
+				
+		if "{@mode}" is "DTM" or "dtm":
+			wipe loop-player's sidebar
+			set name of sidebar of loop-player to "    {@server}    "
+			set score "" in sidebar of loop-player to 10
+			set score "&7Team: %{team.%loop-player%}%" in sidebar of loop-player to 9
+			set score "&7Time Left: &c%{timeleft}%&7 (Sec) " in sidebar of loop-player to 8
+			set score "&7" in sidebar of loop-player to 7
+			set score "&c{@team1}:&7 %{{@team1}healthpercent}%&7" in sidebar of loop-player to 6
+			set score "&b{@team2}:&7 %{{@team2}healthpercent}%&7" in sidebar of loop-player to 5
+			set score "&2" in sidebar of loop-player to 4
+		if "{@mode}" is "TDM" or "tdm":
+			wipe loop-player's sidebar
+			set name of sidebar of loop-player to "    {@server}    "
+			set score "" in sidebar of loop-player to 10
+			set score "&7Team: %{team.%loop-player%}%" in sidebar of loop-player to 9
+			set score "&7Time Left: &c%{timeleft}%&7 (Sec) " in sidebar of loop-player to 8
+			set score "&7" in sidebar of loop-player to 7
+			set score "&c{@team1}:&7 %{{@team1}lifes}%&7" in sidebar of loop-player to 6
+			set score "&b{@team2}:&7 %{{@team2}lifes}%&7" in sidebar of loop-player to 5
+			set score "&2" in sidebar of loop-player to 4
+		if "{@mode}" is "None":
+			wipe loop-player's sidebar
+#TAB BAR		
+every 5 seconds in world "{@world}":
+	loop all players:
+		set tab header to "{@server}" and footer to "    {@ip}    " for loop-player
+		set loop-player tab name to "%loop-player's prefix% &7%loop-player%"
+		set {team.%loop-player%} to "&7None"
+		loop {{@team1}team::*}:
+			if loop-value-2 is loop-player:
+				set loop-player tab name to "%loop-player's prefix% &c%loop-player%"
+		loop {{@team2}team::*}:
+			if loop-value-2 is loop-player:
+				set loop-player tab name to "%loop-player's prefix% &b%loop-player%"
+
+#CODE
+#ADMIN ONLY //NOT NEEDED TO DO IF AUTO START IS ON
+command getitems:
+	permission: {@perm}
+	permission message: {@permmsg}
+	trigger:
+		set slot 4 of player to emerald named "&aPick team"
+		
+#change mode in game
+command mode:
+	permission: {@perm}
+	permission message: {@permmsg}
+	trigger:
+		set metadata tag "ModeGUI" of player to chest inventory with 3 rows named "&3&lTeam &7GUI"
+		loop 28 times:
+			set slot (loop-value - 1) of metadata tag "ModeGUI" of player to gray stained glass pane named " "
+		
+		set slot 11 of metadata tag "ModeGUI" of player to diamond sword named "&7Chnage mode to &cTDM" with lore "&7Team death match"
+		set slot 15 of metadata tag "ModeGUI" of player to white wool named "&7Chnage mode to &cDTM" with lore "&7Destroy the monument"
+		set slot 13 of metadata tag "ModeGUI" of player to barrier named "&7Change mode to &cNone" with lore "&7None"
+			
+		wait 1 ticks
+		open (metadata tag "ModeGUI" of player) to player
+
+
+on inventory click:
+	if event-inventory = (metadata tag "ModeGUI" of player):
+		cancel event
+		if index of event-slot is 11:
+			close player's inventory
+			send "{@p}Mode chamged to &cTDM"
+			set {mode} to "TDM"
+			play sound "entity.experience_orb.pickup" with volume 0.5 to the player
+		if index of event-slot is 13:
+			close player's inventory
+			send "{@p}Mode chamged to &cNone"
+			set {mode} to "None"
+			play sound "entity.experience_orb.pickup" with volume 0.5 to the player
+		if index of event-slot is 15:
+			close player's inventory
+			send "{@p}Mode chamged to &cDTM"
+			set {mode} to "DTM"
+			play sound "entity.experience_orb.pickup" with volume 0.5 to the player
+
+#PLAYER STATS
+command stats [<player>]:
+	trigger:
+		if arg-1 is not set:
+			send "{@p}Showing your stats"
+			wait 5 ticks
+			send "&8| &7Kills: &c%{%player%.kills}%"
+			send "&8| &7Deaths: &c%{%player%.deaths}%"
+			send "&8| &7Blocks broke: &c%{%player%.destroyed}%"
+			send " "
+			send "&8| &7Wins: &c%{%player%.wins}%"
+			send "&8| &7Losses: &c%{%player%.losses}%"
+		if arg-1 is set:
+			send "{@p}Showing %arg-1%&7 stats"
+			wait 5 ticks
+			send "&8| &7Kills: &c%{%arg-1%.kills}%"
+			send "&8| &7Deaths: &c%{%arg-1%.deaths}%"
+			send "&8| &7Blocks broke: &c%{%arg-1%.destroyed}%"
+			send " "
+			send "&8| &7Wins: &c%{%arg-1%.wins}%"
+			send "&8| &7Losses: &c%{%arg-1%.losses}%"
+			
+#COINS COMMAND	
+command eco [<player>] [<text>] [<int>]:
+	permission: coins.admin
+	permission message: {@permmsg}
+	trigger:
+		if arg-1 is set:
+			if arg-2 is "add":
+				if arg-3 is set:
+					add arg-3 to {coins.%arg-1's uuid%}
+					send action bar "{@p}Gave %arg-1%&6 %arg-3% &7Coin(s)" to player
+				else:
+					send "{@p}Not amount entered!"
+					
+			if arg-2 is "remove":
+				if arg-3 is set:
+					if {coins.%arg-1's uuid%} is more than arg-3:
+						remove arg-2 from {coins.%arg-1's uuid%}
+						send action bar "{@p}Removed &6%arg-3%&7 Coin(s)&7 from %arg-1%" to player
+					else:
+						send "{@p}%arg-1%&7 doesn't have enough coins"
+				else:
+					send "{@p}Not amount entered!"
+		else:
+			send "{@p}No player named!"
+
+command coins [<player>]:
+	aliases: /gold, /balance, /bal, /money
+	trigger:
+		if arg-1 is set:
+			send "{@p}%arg-1%&7 has &6%{coins.%arg-1's uuid%}%&7 Coins"
+		else:
+			send "{@p}You have &6%{coins.%player's uuid%}%&7 Coins"
+
+#Daily
+command daily:
+	cooldown: 12 hours
+	cooldown message: You need to wait &l%remaining time% &rto use this command again!
+	cooldown bypass: daily.nocooldown	
+	trigger:
+		send "{@p}Claimed daily reward!"
+		send action bar "&6+250&7 Gold" to player
+		add 250 to {coins.%player's uuid%}
+		play sound "entity.experience_orb.pickup" with volume 0.5 to the player
+
+
+#SPAWNS
+command setteamspawn [<text>]:
+	permission: {@perm}
+	permission message: {@permmsg}
+	trigger:
+		if arg-1 is "{@team1}":
+			set {{@team1}spawn} to location of player
+			send action bar "{@p}{@team1} Spawn set to &3%{{@team1}spawn}%" to player
+		if arg-1 is "{@team2}":
+			set {{@team2}spawn} to location of player
+			send action bar "{@p}{@team2} Spawn set to &3%{{@team2}spawn}%" to player
+		if arg-1 is "spec" or "spectator":
+			set {specspawn} to location of player
+			send action bar "{@p}Spectator spawn set to &3%{specspawn}%" to player
+		if arg-1 is not set:
+			send "{@p} All options"
+			send "&8&l-&7 {@team1}"
+			send "&8&l-&7 {@team2}"
+			send "&8&l-&7 spec"
+		
+#JOIN SYSTEM
+on right click:
+	if name of player's held item is "&aPick team":
+		if player has permission "{@teampickperm}":
+			make player say "/pickteam"
+		else:
+			make player say "/joingame"
+		stop
+		
+#JOINING COMMANDS
+command joingame:
+	trigger:
+		set {_n} to random integer between 1 and 2
+		if {_n} is 1:
+			add player to {{@team1}team::*}
+			send "{@p}Joining &c{@team1}&7 team"
+			clear player's inventory
+		if {_n} is 2:
+			add player to {{@team2}team::*}
+			send "{@p}Joining &b{@team2}&7 team"
+			clear player's inventory
+
+			
+command leavegame:
+	trigger:
+		loop {{@team1}team::*}:
+			if loop-value is player:
+				remove player from {{@team1}team::*}
+				send "{@p}Leaving"
+				set slot 4 of player to emerald named "&aPick team"
+				#set slot 0 of player to air
+				exit loop
+		loop {{@team2}team::*}:
+			if loop-value is player:
+				remove player from {{@team2}team::*}
+				send "{@p}Leaving"
+				set slot 4 of player to emerald named "&aPick team"
+				#set slot 0 of player to air
+				exit loop
+		
+#STARTING / ENDING
+command startgame:
+	permission: {@perm}
+	permission message: {@permmsg}
+	trigger:
+		if {{@team1}team::*} is set:
+			loop {{@team1}team::*}:
+				add 1 to {_n}
+				if {_n} is more than or equal to 1:
+					set {{@team1}ready} to true
+					exit loop
+				else:
+					send "{@p} More players need to be on team 1" to player
+					exit loop
+		else:
+			send "{@p} No players on team 1" to player
+				
+		if {{@team2}team::*} is set:
+			loop {{@team2}team::*}:
+				add 1 to {_n}
+				if {_n} is more than or equal to 1:
+					set {{@team2}ready} to true
+					exit loop
+				else:
+					send "{@p} More players need to be on team 2" to player
+					exit loop
+		else:
+			send "{@p} No players on team 2" to player
+				
+		if {{@team1}ready} and {{@team2}ready}:
+			broadcast "{@p}Starting game"
+			set {timeleft} to ({@timelimit} + 3)
+			execute console command "/repair"
+			delete {{@team1}ready}
+			delete {{@team2}ready}
+			delete {countdown}
+			loadmap()
+			broadcast "{@p}Game starting in 3 seconds"
+			wait 1 second
+			broadcast "{@p}Game starting in 2 seconds"
+			wait 1 second
+			broadcast "{@p}Game starting in 1 seconds"
+			wait 1 second
+						
+			loop all players:
+				teleportplayer(loop-player)
+				set loop-player's gamemode to survival
+				play sound "block.note_block.pling" to loop-player
+				remove invisibility from loop-player
+				set loop-player's flight mode to false
+				clear loop-player's inventory
+				
+				if {%loop-player%.owns.kit.Iron} is true:
+					loadinventory(loop-player, "Iron")
+					equip loop-player with unbreakable iron helmet
+					equip loop-player with unbreakable leather tunic
+					equip loop-player with unbreakable iron leggings
+					equip loop-player with unbreakable iron boots
+				if {%loop-player%.owns.kit.Diamond} is true:
+					loadinventory(loop-player, "Diamond")
+					equip loop-player with unbreakable diamond helmet
+					equip loop-player with unbreakable leather tunic
+					equip loop-player with unbreakable diamond leggings
+					equip loop-player with unbreakable diamond boots
+				if {%loop-player%.owns.kit.Netherite} is true:
+					loadinventory(player, "Netherite")
+					equip player with unbreakable diamond helmet
+					equip player with unbreakable leather tunic
+					equip player with unbreakable diamond leggings
+					equip player with unbreakable diamond boots
+				if {%loop-player%.owns.kit.Netherite} and {%loop-player%.owns.kit.Diamond} and {%loop-player%.owns.kit.Iron} are not set:
+					loadinventory(loop-player, "Basic")
+					equip loop-player with unbreakable chainmail helmet
+					equip loop-player with unbreakable leather tunic
+					equip loop-player with unbreakable chainmail leggings
+					equip loop-player with unbreakable chainmail boots
+					
+					
+				wait 1 tick
+				loop {{@team1}team::*}:
+					if loop-value-2 is loop-player:
+						dye loop-value-2's chestplate red
+				loop {{@team2}team::*}:
+					if loop-value-2 is loop-player:
+						dye loop-value-2's chestplate blue
+	
+	
+	
+		
+command endgame [<text>]:
+	permission: {@perm}
+	permission message: {@permmsg}
+	trigger:
+		if arg-1 is "{@team1}":
+			execute console command "/repair"
+			set {countdown} to false
+			delete {single}
+			delete {Walls}
+			play sound "entity.ender_dragon.death" to all players
+			send title "&c{@team1}&7 Won" to all players
+			
+			loop all players:
+				set loop-player's gamemode to adventure
+				apply potion of invisibility of tier 1 to loop-player for 10000 seconds
+				set loop-player's flight mode to true
+				heal loop-player
+			
+			wait 5 seconds
+			loop {{@team1}team::*}:
+				if loop-value is a player:
+					add 1 to {%loop-value%.wins}
+					add 150 to {coins.%loop-value's uuid%}
+					send action bar "&6+150 &7Gold" to loop-value
+					remove loop-value from {{@team1}team::*}
+					teleport loop-value to {specspawn}
+					clear loop-value's inventory
+					set slot 4 of loop-value to emerald named "&aPick team"
+			loop {{@team2}team::*}:
+				if loop-value is a player:
+					add 1 to {%loop-value%.losses}
+					remove 25 from {coins.%loop-value's uuid%}
+					send action bar "&6-25 &7Gold" to loop-value
+					remove loop-value from {{@team2}team::*}
+					teleport loop-value to {specspawn}
+					clear loop-value's inventory
+					set slot 4 of loop-value to emerald named "&aPick team"
+					
+		if arg-1 is "{@team2}":
+			execute console command "/repair"
+			set {countdown} to false
+			delete {single}
+			delete {Walls}
+			play sound "entity.ender_dragon.death" to all players
+			send title "&b{@team2}&7 Won" to all players
+			
+			loop all players:
+				set loop-player's gamemode to adventure
+				apply potion of invisibility of tier 1 to loop-player for 10000 seconds
+				set loop-player's flight mode to true
+				heal loop-player
+			
+			wait 5 seconds
+			loop {{@team1}team::*}:
+				if loop-value is a player:
+					add 1 to {%loop-value%.losses}
+					remove 25 from {coins.%loop-value's uuid%}
+					send action bar "&6-25 &7Gold" to loop-value
+					remove loop-value from {{@team1}team::*}
+					teleport loop-value to {specspawn}
+					clear loop-value's inventory
+					set slot 4 of loop-value to emerald named "&aPick team"
+			loop {{@team2}team::*}:
+				if loop-value is a player:
+					add 1 to {%loop-value%.wins}
+					add 150 to {coins.%loop-value's uuid%}
+					send action bar "&6+150 &7Gold" to loop-value
+					remove loop-value from {{@team2}team::*}
+					teleport loop-value to {specspawn}
+					clear loop-value's inventory
+					set slot 4 of loop-value to emerald named "&aPick team"
+			stop
+		if arg-1 is "tie":
+			execute console command "/repair"
+			set {countdown} to false
+			delete {single}
+			delete {Walls}
+			play sound "entity.ender_dragon.death" to all players
+			send title "It was a tie" to all players
+			
+			loop all players:
+				set loop-player's gamemode to adventure
+				apply potion of invisibility of tier 1 to loop-player for 10000 seconds
+				set loop-player's flight mode to true
+				heal loop-player
+				
+			wait 5 seconds
+			loop {{@team1}team::*}:
+				if loop-value is a player:
+					remove loop-value from {{@team1}team::*}
+					teleport loop-value to {specspawn}
+					clear loop-value's inventory
+					set slot 4 of loop-value to emerald named "&aPick team"
+			loop {{@team2}team::*}:
+				if loop-value is a player:
+					remove loop-value from {{@team2}team::*}
+					teleport loop-value to {specspawn}
+					clear loop-value's inventory
+					set slot 4 of loop-value to emerald named "&aPick team"
+					
+					
+									
+#DTM STUFF
+on break of {@team1Block}:
+	if "{@mode}" is "DTM" or "dtm":
+		clear drops
+		loop {{@team2}team::*}:
+			if loop-value is player:
+				play mob spawner flames at the targeted block to the player
+				play sound "block.note_block.pling"
+				add 1 to {%loop-value%.destroyed}
+				add 10 to {coins.%loop-value's uuid%}
+				send action bar "&6+10 &7Gold" to loop-value
+				remove 1 from {{@team1}monumenthealth}
+				remove {percentdown} from {{@team1}healthpercent}
+				broadcast "{@p}&b%player%&7 damaged &c{@team1}&7 monument"
+				if {{@team1}monumenthealth} is 0:
+					execute console command "/endgame {@team2}"
+		loop {{@team1}team::*}:
+			if loop-value is player:
+				send "{@p}&cYou can't mine your own wool"
+				cancel event
+
+on break of {@team2Block}:
+	if "{@mode}" is "DTM" or "dtm":
+		clear drops
+		loop {{@team1}team::*}:
+			if loop-value is player:
+				play mob spawner flames at the targeted block to the player
+				play sound "block.note_block.pling"
+				remove 1 from {{@team2}monumenthealth}
+				add 1 to {%loop-value%.destroyed}
+				add 10 to {coins.%loop-value's uuid%}
+				send action bar "&6+10 &7Gold" to loop-value
+				remove {percentdown} from {{@team2}healthpercent}
+				broadcast "{@p}&c%player%&7 damaged &b{@team2}&7 monument"
+				if {{@team2}monumenthealth} is 0:
+					execute console command "/endgame {@team1}"
+		loop {{@team2}team::*}:
+			if loop-value is player:
+				send "{@p}&cYou can't mine your own wool"
+				cancel event
+				
+on break of obsidian:
+	if "{@mode}" is "DTM" or "dtm":
+		clear drops
+		if block below event-block is light blue terracotta:
+			loop {{@team1}team::*}:
+				if loop-value is player:
+					play mob spawner flames at the targeted block to the player
+					remove 1 from {{@team2}monumenthealth}
+					add 1 to {%loop-value%.destroyed}
+					add 50 to {coins.%loop-value's uuid%}
+					send action bar "&6+50 &7Gold" to loop-value
+					remove {percentdown} from {{@team2}healthpercent}
+					broadcast "{@p}&c%player%&7 damaged &b{@team2}&7 monument"
+					if {{@team2}monumenthealth} is 0:
+						execute console command "/endgame {@team1}"
+			loop {{@team2}team::*}:
+				if loop-value is player:
+					send "{@p}&cYou can't mine your own wool"
+					cancel event
+		if block below event-block is red terracotta:
+			loop {{@team2}team::*}:
+				if loop-value is player:
+					play mob spawner flames at the targeted block to the player
+					add 1 to {%loop-value%.destroyed}
+					add 50 to {coins.%loop-value's uuid%}
+					send action bar "&6+50 &7Gold" to loop-value
+					remove 1 from {{@team1}monumenthealth}
+					remove {percentdown} from {{@team1}healthpercent}
+					broadcast "{@p}&b%player%&7 damaged &c{@team1}&7 monument"
+					if {{@team1}monumenthealth} is 0:
+						execute console command "/endgame {@team2}"
+			loop {{@team1}team::*}:
+				if loop-value is player:
+					send "{@p}&cYou can't mine your own wool"
+					cancel event
+					
+					
+on break of cobblestone:
+	clear drops
+	
+on place of oak planks:
+	if {Walls} is true:
+		remove all oak planks from player's inventory
+		cancel event
+	
+command repair:
+	permission: {@perm}
+	permission message: {@permmsg}
+	trigger:
+		set {{@team1}monumenthealth} to {@total}
+		set {{@team2}monumenthealth} to {@total}
+		set {{@team1}healthpercent} to 100
+		set {{@team2}healthpercent} to 100
+		set {{@team1}lifes} to {@Teamlives}
+		set {{@team2}lifes} to {@Teamlives}
+		play sound "entity.experience_orb.pickup" with volume 0.5 to the player
+		
+command arena [<text>] [<int>]:
+	permission: {@perm}
+	permission message: {@permmsg}
+	trigger:
+		if arg-1 is set:
+			if arg-1 is "Set":
+				if arg-2 is set:
+					if arg-2 is 1:
+						set {areapos1} to location of player's target block
+						set {loadloc} to location of player's target block
+						play sound "entity.experience_orb.pickup" with volume 0.5 to the player
+						send "{@p}Saving pos 1..."
+					if arg-2 is 2:
+						set {areapos2} to location of player's target block
+						play sound "entity.experience_orb.pickup" with volume 0.5 to the player
+						send "{@p}Saving pos 2..."
+					else if arg-2 is not 1 or 2:
+						send "{@p}All options"
+						send "&8&l-&7 1"
+						send "&8&l-&7 2"
+			if arg-1 is "Save":
+				if {areapos1} and {areapos2} are set:
+					arenaSaveGUI(player)
+			if arg-1 is "LoadLoc":
+				send "{@p}Saving load location..."
+				set {loadloc} to location of player
+			if arg-1 is "Load":
+				if {loadloc} is set:
+					if arg-2 is not set:
+						arenaloadGUI(player)
+					if arg-2 is set:
+						if arg-2 is lower than 19:
+							broadcast "{@p}Loading Arena..."
+							paste schematic "plugins/FastAsyncWorldEdit/schematics/index%arg-2%-arena.schem" at {loadloc}
+							play sound "entity.experience_orb.pickup" with volume 0.5 to the player
+				else:
+					send "{@p}Load location is not set!"
+			if arg-1 is "Delete":
+				arenadeleteGUI(player)
+				
+		else:
+			send "{@p}All options"
+			send "&8&l-&7 Set"
+			send "&8&l-&7 Save"
+			send "&8&l-&7 Load"
+			send "&8&l-&7 Delete"
+			send "&8&l-&7 Loadloc"
+
+#TEAM STUFF
+command teams:
+	permission: {@perm}
+	permission message: {@permmsg}
+	trigger:
+		send "{@p}RED TEAM: %{{@team1}team::*}%"
+		send "{@p}BLUE TEAM: %{{@team2}team::*}%"
+		
+command clearteam [<text>]:
+	permission: {@perm}
+	permission message: {@permmsg}
+	trigger:
+		if arg-1 is "{@team1}":
+			delete {{@team1}team::*}
+			send "{@p}RED TEAM: %{{@team1}team::*}% &7(CLEARED)"
+			send "{@p}BLUE TEAM: %{{@team2}team::*}%"
+		if arg-1 is "{@team2}":
+			delete {{@team2}team::*}
+			send "{@p}RED TEAM: %{{@team1}team::*}%"
+			send "{@p}BLUE TEAM: %{{@team2}team::*}% &7(CLEARED)"
+		if arg-1 is "All":
+			delete {{@team1}team::*}
+			delete {{@team2}team::*}
+			send "{@p}RED TEAM: %{{@team1}team::*}% &7(CLEARED)"
+			send "{@p}BLUE TEAM: %{{@team2}team::*}% &7(CLEARED)"
+
+command pickteam:
+	permission: {@teampickperm}
+	permission message: {@permmsg}
+	trigger:
+		set metadata tag "TeamGUI" of player to chest inventory with 3 rows named "&3&lTeam &7GUI"
+		loop 28 times:
+			set slot (loop-value - 1) of metadata tag "TeamGUI" of player to gray stained glass pane named " "
+		
+		set slot 11 of metadata tag "TeamGUI" of player to red dye named "&7Join &cRed &7Team"
+		set slot 15 of metadata tag "TeamGUI" of player to light Blue dye named "&7Join &bBlue &7Team"
+		set slot 13 of metadata tag "TeamGUI" of player to gray dye named "&7Leave Team"
+			
+		wait 1 ticks
+		open (metadata tag "TeamGUI" of player) to player
+
+
+on inventory click:
+	if event-inventory = (metadata tag "TeamGUI" of player):
+		cancel event
+		if index of event-slot is 11:
+			close player's inventory
+			remove player from {{@team2}team::*}
+			add player to {{@team1}team::*}
+			send "{@p}Joining &c{@team1}&7 team"
+			#clear player's inventory
+		if index of event-slot is 15:
+			close player's inventory
+			remove player from {{@team1}team::*}
+			add player to {{@team2}team::*}
+			send "{@p}Joining &b{@team2}&7 team"
+			#clear player's inventory
+		if index of event-slot is 13:
+			close player's inventory
+			remove player from {{@team1}team::*}
+			remove player from {{@team2}team::*}
+			send "{@p}Leaving Team"
+			#clear player's inventory
+			
+#Kits
+command kits [<text>] [<text>]:
+	trigger:
+		if arg-1 is set:
+			if arg-1 is "Buy":
+				set metadata tag "KITGUI" of player to chest inventory with 3 rows named "&3&lTeam &7GUI"
+				loop 28 times:
+					set slot (loop-value - 1) of metadata tag "KITGUI" of player to gray stained glass pane named " "
+		
+				set slot 10 of metadata tag "KITGUI" of player to chain named "&7Basic &7Kit" with lore " " and "&7Cost: &cFREE" and "&7Right-click to buy" and " "
+				set slot 12 of metadata tag "KITGUI" of player to Iron ingot named "&rIron &7Kit" with lore " " and "&7Cost: &c3000" and "&7Right-click to buy" and " "
+				set slot 14 of metadata tag "KITGUI" of player to Diamond named "&bDiamond &7Kit" with lore " " and "&7Cost: &c10000" and "&7Right-click to buy" and " "
+				set slot 16 of metadata tag "KITGUI" of player to netherite ingot named "&dNetherite &7Kit" with lore " " and "&7Cost: &c35000" and "&7Right-click to buy" and " "
+				
+				wait 1 ticks
+				open (metadata tag "KITGUI" of player) to player
+				
+			if arg-1 is "Set":
+				if player has permission "Kits.edit":
+					if arg-2 is "Basic":
+						saveinventory(player, "Basic")
+						send "{@p}Basic kit set to curent inventory"
+						play sound "entity.experience_orb.pickup" with volume 0.5 to the player
+					if arg-2 is "Iron":
+						saveinventory(player, "Iron")
+						send "{@p}&rIron&7 kit set to curent inventory"
+						play sound "entity.experience_orb.pickup" with volume 0.5 to the player
+					if arg-2 is "Diamond":
+						saveinventory(player, "Diamond")
+						send "{@p}&bDiamond&7 kit set to curent inventory"
+						play sound "entity.experience_orb.pickup" with volume 0.5 to the player
+					if arg-2 is "Netherite":
+						saveinventory(player, "Netherite")
+						send "{@p}&dNetherite&7 kit set to curent inventory"
+						play sound "entity.experience_orb.pickup" with volume 0.5 to the player
+					if arg-2 is not set:
+						send "{@p}All options"
+						send "&8&l-&7 Basic"
+						send "&8&l-&7 Iron"
+						send "&8&l-&7 Diamond"
+						send "&8&l-&7 Netherite"
+				else:
+					send "{@p}&cCan't do this"	
+		else:
+			send "{@p}All options"
+			send "&8&l-&7 Buy"
+			send "&8&l-&7 Set (Admin)"
+			
+on inventory click:
+	if event-inventory = (metadata tag "KITGUI" of player):
+		cancel event
+		if index of event-slot is 10:
+			close player's inventory
+			send "{@p}Appling basic kit"
+			play sound "entity.experience_orb.pickup" with volume 0.5 to the player
+		if index of event-slot is 12:
+			close player's inventory
+			if {%player%.owns.kit.Iron} is not set:
+				if {coins.%player's uuid%} is more than or equal to 300:
+					remove 300 from {coins.%player's uuid%}
+					play sound "entity.experience_orb.pickup" with volume 0.5 to the player
+					set {%player%.owns.kit.Iron} to true
+					send "{@p}Appling &riron&7 kit"
+				else:
+					send "{@p}You need more coins"
+					play sound "entity.ender_dragon.growl" with volume 0.5 to the player
+			else:
+				send "{@p}Appling &riron&7 kit"
+				play sound "entity.experience_orb.pickup" with volume 0.5 to the player
+					
+		if index of event-slot is 14:
+			close player's inventory
+			if {%player%.owns.kit.Diamond} is not set:
+				if {coins.%player's uuid%} is more than or equal to 10000:
+					remove 10000 from {coins.%player's uuid%}
+					set {%player%.owns.kit.Diamond} to true
+					play sound "entity.experience_orb.pickup" with volume 0.5 to the player
+					send "{@p}Appling &bdiamond&7 kit"
+				else:
+					send "{@p}You need more coins"
+					play sound "entity.ender_dragon.growl" with volume 0.5 to the player
+			else:
+				send "{@p}Appling &bdiamond&7 kit"
+				play sound "entity.experience_orb.pickup" with volume 0.5 to the player
+				
+		if index of event-slot is 16:
+			close player's inventory
+			if {%player%.owns.kit.Netherite} is not set:
+				if {coins.%player's uuid%} is more than or equal to 35000:
+					remove 35000 from {coins.%player's uuid%}
+					set {%player%.owns.kit.Netherite} to true
+					play sound "entity.experience_orb.pickup" with volume 0.5 to the player
+					send "{@p}Appling &dnetherite&7 kit"
+				else:
+					send "{@p}You need more coins"
+					play sound "entity.ender_dragon.growl" with volume 0.5 to the player
+			else:
+				send "{@p}Appling &dnetherite&7 kit"
+				play sound "entity.experience_orb.pickup" with volume 0.5 to the player
+					
+#DAMAGE EVENTS
+on death:
+	clear drops
+	if "{@mode}" is "TDM" or "tdm":
+		loop {{@team1}team::*}:
+			if loop-value is victim:
+				remove 1 from {{@team1}lifes}
+				if {{@team1}lifes} is 0:
+					execute console command "/endgame blue"
+		loop {{@team2}team::*}:
+			if loop-value is victim:
+				remove 1 from {{@team2}lifes}
+				if {{@team2}lifes} is 0:
+					execute console command "/endgame red"
+	if victim is a player:
+		add 1 to {%victim%.deaths}
+		remove 15 from {coins.%victim's uuid%}
+		send action bar "&6-15 &7Gold" to victim
+		if attacker is a player:
+			clear drops
+			add 1 to {%attacker%.kills}
+			add 25 to {coins.%attacker's uuid%}
+			send action bar "&6+25 &7Gold" to attacker
+			play sound "entity.experience_orb.pickup" with volume 0.5 to the attacker
+			add golden apple to attacker
+			play wolf hearts at victim
+			
+	
+	
+on damage:
+	if victim is a player:
+		if attacker is a player:
+			if {team.%attacker%} is "&7None":
+				send "{@p}Can't harm spectators" to attacker
+				cancel event
+			loop {{@team1}team::*}:
+				if loop-value-1 is attacker:
+					loop {{@team1}team::*}:
+						if loop-value-2 is victim:
+							send "{@p}You cant hurt your own team" to attacker
+							cancel event
+			loop {{@team2}team::*}:
+				if loop-value-1 is attacker:
+					loop {{@team2}team::*}:
+						if loop-value-2 is victim:
+							send "{@p}You cant hurt your own team" to attacker
+							cancel event
+							
+on respawn:
+	wait 2 ticks
+	if {countdown} is not set:
+		teleport player to {specspawn}
+		set player's gamemode to spectator
+		send title "&7Respawning in 5 seconds"
+		wait 1 second
+		send title "&7Respawning in 4 seconds"
+		wait 1 second
+		send title "&7Respawning in 3 seconds"
+		wait 1 second
+		send title "&7Respawning in 2 seconds"
+		wait 1 second
+		send title "&7Respawning in 1 seconds"
+		wait 1 second
+		set player's gamemode to survival
+		if {%player%.owns.kit.Iron} is true:
+			loadinventory(player, "Iron")
+			equip player with unbreakable iron helmet
+			equip player with unbreakable leather tunic
+			equip player with unbreakable iron leggings
+			equip player with unbreakable iron boots
+		if {%player%.owns.kit.Diamond} is true:
+			loadinventory(player, "Diamond")
+			equip player with unbreakable diamond helmet
+			equip player with unbreakable leather tunic
+			equip player with unbreakable diamond leggings
+			equip player with unbreakable diamond boots
+		if {%player%.owns.kit.Netherite} is true:
+			loadinventory(player, "Netherite")
+			equip player with unbreakable diamond helmet
+			equip player with unbreakable leather tunic
+			equip player with unbreakable diamond leggings
+			equip player with unbreakable diamond boots
+		if {%player%.owns.kit.Netherite} and {%player%.owns.kit.Diamond} and {%player%.owns.kit.Iron} are not set:
+			loadinventory(player, "Basic")
+			equip player with unbreakable chainmail helmet
+			equip player with unbreakable leather tunic
+			equip player with unbreakable chainmail leggings
+			equip player with unbreakable chainmail boots
+		wait 1 tick
+		loop {{@team1}team::*}:
+			if loop-value is player:
+				teleport loop-value to {{@team1}spawn}
+				wait 1 tick
+				dye loop-value's chestplate red
+		loop {{@team2}team::*}:
+			if loop-value is player:
+				teleport loop-value to {{@team2}spawn}
+				wait 1 tick
+				dye loop-value's chestplate blue
+	else:
+		teleport player to {specspawn}
+		set player's gamemode to adventure
+		apply potion of invisibility of tier 1 to player for 10000 seconds
+		set player's flight mode to true
+		clear player's inventory
+		wait 2 ticks
+		set slot 4 of player to emerald named "&aPick team"
+			
+#OTHER
+on inventory click:
+	if player has permission "inv.edit":
+		stop
+	#else:
+		#cancel event
+	
+on drop:
+	if player has permission "inv.edit":
+		stop
+	else:
+		cancel event
+		
+		
+#funtions
+function teleportplayer(p: player):
+	loop {{@team1}team::*}:
+		if loop-value is {_p}:
+			teleport loop-value to {{@team1}spawn}
+	loop {{@team2}team::*}:
+		if loop-value is {_p}:
+			teleport loop-value to {{@team2}spawn}
+				
+						
+						
+function loadmap():
+	if "{@mode}" is "DTM" or "dtm":
+		set {percentdown} to (100/{@total})
+		set {{@team1}healthpercent} to 100
+		set {{@team2}healthpercent} to 100
+		if {@rotatemaps} is true:
+			set {_n} to random integer between 1 and 8
+			if {_n} is 1:
+				execute console command "/arena load 1"
+			if {_n} is 2:
+				execute console command "/arena load 2"
+			if {_n} is 3:
+				execute console command "/arena load 3"
+				set {single} to true
+				set {percentdown} to (100/1)
+				set {timeleft} to 300
+				set {{@team1}monumenthealth} to 1
+				set {{@team2}monumenthealth} to 1
+				set {{@team1}healthpercent} to 100
+				set {{@team2}healthpercent} to 100
+			if {_n} is 4:
+				execute console command "/arena load 4"
+				set {Walls} to true
+				set {percentdown} to (100/9)
+				set {{@team1}monumenthealth} to 9
+				set {{@team2}monumenthealth} to 9
+				set {{@team1}healthpercent} to 100
+				set {{@team2}healthpercent} to 100
+			if {_n} is 5:
+				execute console command "/arena load 5"
+			if {_n} is 6:
+				execute console command "/arena load 6"
+			if {_n} is 7:
+				execute console command "/arena load 7"
+				set {percentdown} to (100/8)
+				set {{@team1}monumenthealth} to 8
+				set {{@team2}monumenthealth} to 8
+				set {{@team1}healthpercent} to 100
+				set {{@team2}healthpercent} to 100
+			if {_n} is 8:
+				execute console command "/arena load 8"
+				set {percentdown} to (100/21)
+				set {{@team1}monumenthealth} to 21
+				set {{@team2}monumenthealth} to 21
+				set {{@team1}healthpercent} to 100
+				set {{@team2}healthpercent} to 100
+		else:
+			execute console command "/arena load 1"
+	if "{@mode}" is "TDM" or "tdm":
+		execute console command "/arena load 18"
+		set {{@team1}lifes} to {@Teamlives}
+		set {{@team2}lifes} to {@Teamlives}
+		
+		
+function saveinventory(p: player, t: text):
+	loop 36 times:
+		set {inv.%{_count}%.%{_t}%} to slot ({_count} - 1) of {_p}'s inventory
+		add 1 to {_count}
+		
+		
+		
+function loadinventory(p: player, t: text):
+	loop 36 times:
+		set slot ({_count} - 1) of {_p}'s inventory to {inv.%{_count}%.%{_t}%}
+		add 1 to {_count}
+		
+function arenaloadGUI(p: player):
+	set metadata tag "LLIST" of {_p} to chest inventory with 3 rows named "&3&lArena &8| &8Load"
+	set slot 18, 19, 20, 21, 22, 23, 24, 25, and 26 of metadata tag "LLIST" of {_p} to gray stained glass pane named " "
+	set {slot} to 0
+	set {num} to 1
+	loop 18 times:
+		if file "plugins/FastAsyncWorldEdit/schematics/index%{num}%-arena.schem" does not exist:
+			set slot {slot} of metadata tag "LLIST" of {_p} to {@nofile} named "&7No arena saved"
+		if file "plugins/FastAsyncWorldEdit/schematics/index%{num}%-arena.schem" exists:
+			set slot {slot} of metadata tag "LLIST" of {_p} to {@file} named "&7Load arena %{num}%"
+		add 1 to {slot}
+		add 1 to {num}
+		
+	open (metadata tag "LLIST" of {_p}) to {_p}
+	
+on inventory click:
+	if event-inventory = (metadata tag "LLIST" of player):
+		cancel event
+		if index of event-slot is not 18, 19, 20, 21, 22, 23, 24, 25, 26:
+			if event-item is {@file}:
+				close player's inventory
+				play sound "entity.experience_orb.pickup" with volume 0.5 to the player
+				set {_n} to (index of event-slot  + 1)
+				broadcast "{@p}Loading Arena %{_n}%&7..."
+				wait 1 ticks
+				paste schematic "plugins/FastAsyncWorldEdit/schematics/index%{_n}%-arena.schem" at {loadloc}
+				play sound "block.note_block.pling" with volume 0.5 to the player
+			else:
+				play sound "block.amethyst_block.hit" with volume 0.5 to the player
+						
+						
+function arenaSaveGUI(p: player):
+	set metadata tag "SLIST" of {_p} to chest inventory with 3 rows named "&3&lArena &8| &8Save"
+	set slot 18, 19, 20, 21, 22, 23, 24, 25, and 26 of metadata tag "SLIST" of {_p} to gray stained glass pane named " "
+	set {slot} to 0
+	set {num} to 1
+	loop 18 times:
+		if file "plugins/FastAsyncWorldEdit/schematics/index%{num}%-arena.schem" does not exist:
+			set slot {slot} of metadata tag "SLIST" of {_p} to {@file} named "&7Save as arena %{num}%"
+		if file "plugins/FastAsyncWorldEdit/schematics/index%{num}%-arena.schem" exists:
+			set slot {slot} of metadata tag "SLIST" of {_p} to {@nofile} named "&7Save as arena %{num}%" with lore "%nl%&7A Areana is already saved to" and "&7this slot.%nl% %nl%&cClick to override%nl%"
+		add 1 to {slot}
+		add 1 to {num}
+		
+	open (metadata tag "SLIST" of {_p}) to {_p}
+	
+	
+	
+on inventory click:
+	if event-inventory = (metadata tag "SLIST" of player):
+		cancel event
+		if index of event-slot is not 18, 19, 20, 21, 22, 23, 24, 25, 26:
+			if event-item is {@file}:
+				close player's inventory
+				set {_n} to (index of event-slot  + 1)
+				send "{@p}Deleting old arena..."
+				play sound "entity.experience_orb.pickup" with volume 0.5 to the player
+				delete file "plugins/FastAsyncWorldEdit/schematics/index%{_n}%-arena.schem"
+				execute console command "/sk reload FaweAPI"
+				wait 1 second
+				send "{@p}This might take a bit..."
+				wait 5 seconds
+				send "{@p}Saving New arena..."
+				save schematic "plugins/FastAsyncWorldEdit/schematics/index%{_n}%-arena.schem" from {areapos1} and {areapos2}
+				play sound "block.note_block.pling" with volume 0.5 to the player
+			else:
+				play sound "block.amethyst_block.hit" with volume 0.5 to the player
+				close player's inventory
+				set {_n} to (index of event-slot  + 1)
+				send "{@p}Deleting old arena..."
+				delete file "plugins/FastAsyncWorldEdit/schematics/index%{_n}%-arena.schem"
+				execute console command "/sk reload FaweAPI"
+				wait 1 second
+				send "{@p}This might take a bit..."
+				wait 5 seconds
+				send "{@p}Saving New arena..."
+				save schematic "plugins/FastAsyncWorldEdit/schematics/index%{_n}%-arena.schem" from {areapos1} and {areapos2}
+				play sound "block.note_block.pling" with volume 0.5 to the player
+			
+			
+function arenadeleteGUI(p: player):
+	set metadata tag "DLIST" of {_p} to chest inventory with 3 rows named "&3&lArena &8| &8Delete"
+	set slot 18, 19, 20, 21, 22, 23, 24, 25, and 26 of metadata tag "DLIST" of {_p} to gray stained glass pane named " "
+	set {slot} to 0
+	set {num} to 1
+	loop 18 times:
+		if file "plugins/FastAsyncWorldEdit/schematics/index%{num}%-arena.schem" does not exist:
+			set slot {slot} of metadata tag "DLIST" of {_p} to {@nofile} named "&7No arena saved"
+		if file "plugins/FastAsyncWorldEdit/schematics/index%{num}%-arena.schem" exists:
+			set slot {slot} of metadata tag "DLIST" of {_p} to {@file} named "&7Delete arena %{num}%"
+		add 1 to {slot}
+		add 1 to {num}
+		
+	open (metadata tag "DLIST" of {_p}) to {_p}
+	
+on inventory click:
+	if event-inventory = (metadata tag "DLIST" of player):
+		cancel event
+		if index of event-slot is not 18, 19, 20, 21, 22, 23, 24, 25, 26:
+			if event-item is {@file}:
+				close player's inventory
+				set {_n} to (index of event-slot  + 1)
+				if file "plugins/FastAsyncWorldEdit/schematics/index%{_n}%-arena.schem" doesn't exist:
+					send "{@p}Index Does not exist"
+					play sound "entity.experience_orb.pickup" with volume 0.5 to the player
+					stop
+				send "{@p}Deleting File..."
+				delete file "plugins/FastAsyncWorldEdit/schematics/index%{_n}%-arena.schem"
+				execute console command "/sk reload FaweAPI"
+				play sound "block.note_block.pling" with volume 0.5 to the player
+				stop
+			else:
+				play sound "block.amethyst_block.hit" with volume 0.5 to the player
+				
+				
+command load:
+	permission: {@perm}
+	permission message: {@permmsg}
+	trigger:
+		if {loadloc} is set:
+			arenaloadGUI(player)
+		else:
+			send "{@p}Load location is not set!"
+			
+			
+command save:
+	permission: {@perm}
+	permission message: {@permmsg}
+	trigger:
+		if {areapos1} and {areapos2} are set:
+			arenaSaveGUI(player)
+			
+			
+on food bar change:
+	cancel event
+	
+on item damage:
+    cancel event
+	
+	
+options:
+	SoundD: BLOCK_NOTE_BLOCK_PLING
+
+command /discord:
+	aliases: /server, /community, /dc
+	trigger:
+		send " "
+		send "{@p}<tooltip:&7Click to open the &bDiscord><link:{@discord}>&bClick here<reset>&7 to join the discord" to player
+		send " "
+		play sound "{@SoundD}" with volume 0.5 to player
+
+
+
+on break of black terracotta:
+	if player has permission "maps.edit":
+		stop
+	else:
+		cancel event
+	
+	
+on break of red terracotta:
+	if player has permission "maps.edit":
+		stop
+	else:
+		cancel event
+	
+on break of light blue terracotta:
+	if player has permission "maps.edit":
+		stop
+	else:
+		cancel event
+	
+on break of red stained glass:
+	if player has permission "maps.edit":
+		stop
+	else:
+		cancel event
+	
+on break of light blue stained glass:
+	if player has permission "maps.edit":
+		stop
+	else:
+		cancel event
+	
+on break of white concrete:
+	if player has permission "maps.edit":
+		stop
+	else:
+		cancel event
+		
+on break of black concrete:
+	if player has permission "maps.edit":
+		stop
+	else:
+		cancel event
+	
+on break of ladder:
+	if player has permission "maps.edit":
+		stop
+	else:
+		cancel event
+		
+on break of soul sand:
+	if player has permission "maps.edit":
+		stop
+	else:
+		cancel event
+		
+on break of spruce fence gate:
+	if player has permission "maps.edit":
+		stop
+	else:
+		cancel event
+	
+on break of sea lantern:
+	if player has permission "maps.edit":
+		stop
+	else:
+		cancel event
+	
+on break of black wool:
+	if player has permission "maps.edit":
+		stop
+	else:
+		cancel event
+		
+command /addons:
+	trigger:
+		send "{@p}All addons are" to player
+		loop list of addons:
+			send "&8- &7%loop-value%" to player
+		
+# ----------- #
+# Made By Boxey#1326
+# ----------- #

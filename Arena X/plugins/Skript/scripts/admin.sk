@@ -1,0 +1,42 @@
+options:
+	p: &3Arena &bX &8| &7 #The server prefix
+	perm: trolling.admin
+	permmsg: &cHey!&7 You can't do this
+
+
+on chat:
+	if {mirror.%player%} is true:
+		set {_msg} to mirror message
+		set the chat format to "%player's prefix% &7%player% &r➢ %{_msg}%"
+		
+		
+command mirrorchat [<player>]:
+	permission: {@perm}
+	permission message: {@permmsg}
+	trigger:
+		if {mirror.%arg-1%} is true:
+			delete {mirror.%arg-1%}
+			send "{@p}Toggled Mirrored Chat &cOff&7 for %arg-1%" to player
+			stop
+		if {mirror.%arg-1%} is not set:
+			set {mirror.%arg-1%} to true
+			send "{@p}Toggled Mirrored Chat &cOn&7 for %arg-1%" to player
+			
+		
+on any movement:
+	if {freeze.%player%} is true:
+		send "{@p}You are frozen" to player
+		cancel event
+		
+			
+command freeze [<player>]:
+	permission: {@perm}
+	permission message: {@permmsg}
+	trigger:
+		if {freeze.%arg-1%} is true:
+			delete {freeze.%arg-1%}
+			send "{@p}Unforze %arg-1%" to player
+			stop
+		if {freeze.%arg-1%} is not set:
+			set {freeze.%arg-1%} to true
+			send "{@p}Froze %arg-1%" to player

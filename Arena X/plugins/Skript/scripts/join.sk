@@ -1,0 +1,37 @@
+options:
+	p: &3Arena &bX &8| &7
+	server:&3Arena &bX
+	perm: joins.reset
+	permmsg: &fUnknown command. Type &C/help&7 for help
+	
+	
+on join:
+	if {joins::*} does not contain player's uuid:
+		add player's uuid to {joins::*}
+		add 1 to {total}
+		broadcast "&7Welcome &c%player%&7 to {@server}&7 (%{total}%)"
+		wait 5 ticks
+		send "&a☒☒☒☒☒☒☒☒"
+		send "&a☒☒☒☒☒☒☒☒"
+		send "&a☒&8☐☐&a☒☒&8☐☐&a☒"
+		send "&a☒&8☐☐&a☒☒&8☐☐&a☒      &7Welcome to {@server}"
+		send "&a☒☒☒&8☐☐&a☒☒☒      &7You are curently spectating"
+		send "&a☒☒&8☐☐☐☐&a☒☒      &7Click your emerald to join a team!"
+		send "&a☒☒&8☐☐☐☐&a☒☒"
+		send "&a☒☒&8☐&a☒☒&8☐&a☒☒"
+		send "&a☒☒☒☒☒☒☒☒"
+	else:
+		send action bar "{@p}Welcome Back" to player
+		
+		
+command resetjoins:
+	permission: {@perm}
+	permission message: {@permmsg}
+	trigger:
+		delete {joins::*}
+		set {total} to 0
+		send action bar "{@p}Joins reset" to player
+		
+command total:
+	trigger:
+		send "{@p}A total of %{total}%&7 Players have joined"
