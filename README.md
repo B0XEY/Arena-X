@@ -1,10 +1,11 @@
 # Arena-X
 The skripts for my TDM / DTM server
 
-Needed
+Needed: (All Plugins are in .zip folder)
 - Skript (Link: https://github.com/SkriptLang/Skript/releases)
 - SKBee (Link: https://github.com/ShaneBeee/SkBee/releases/tag/1.12.4)
 - SkQuery (Link: https://github.com/SkQuery/SkQuery/releases/tag/4.1.5)
+- SKUtils (Link: )
 - FastAscWorldEdit (Link:
 - Reset coming later!
 
