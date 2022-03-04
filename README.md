@@ -3,15 +3,15 @@ The skripts for my TDM / DTM server
 
 Needed: (All Plugins are in .zip folder)
 - Skript (Link: https://github.com/SkriptLang/Skript/releases)
-- SKBee (Link: https://github.com/ShaneBeee/SkBee/releases/tag/1.12.4)
 - SkQuery (Link: https://github.com/SkQuery/SkQuery/releases/tag/4.1.5)
-- Skellett (Link: 
-- Skript-reflect (Link: 
-- ProtocoLib (Link:
-- SKUtils (Link: )
-- FastAsyncWorldEdit (Link:
-- 
-- Reset coming later!
+- Skellett (Link: https://github.com/TheLimeGlass/Skellett/releases/tag/2.0.3)
+- Skript-reflect (Link: https://forums.skunity.com/resources/skript-reflect.1146/)
+- ProtocoLib (Link: https://www.spigotmc.org/resources/protocollib.1997/)
+- SKUtillties (Cant find trust worthly link)
+- FastAsyncWorldEdit (Link: https://github.com/IntellectualSites/FastAsyncWorldEdit/releases)
+- Vault (Link: https://dev.bukkit.org/projects/vault)
+- Any permission plugin
+- Any plugin I forgot is in the Folder!
 
 
 Note
