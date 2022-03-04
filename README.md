@@ -2,7 +2,7 @@
 The skripts for my TDM / DTM server
 
 Needed
--Skript
+- Skript
 
 Needed
 -Skript (Link: https://github.com/SkriptLang/Skript/releases)
