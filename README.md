@@ -25,9 +25,9 @@ Note
 
 How to use
 - Download the folder
-- Put the "Arena" folder in your skripts folder
-- once the folder is in your skript folder so "/sk reload all"
+- Put the files in the "Plugins" folder in your plugins folder
+- once the files are in your Server folder restart you server
 - Now you want to set up your arena with points in the corrners 
 - Make suer thay are a good distance away for blocks and other things
-- Video to help with arena setup / loading / saving!
+- Video to help with setup / loading / saving!
 - VIDEO
