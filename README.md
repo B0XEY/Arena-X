@@ -1,5 +1,6 @@
 # Arena-X
 The skripts for my TDM / DTM server
+Discord for me - https://discord.com/invite/gya2UxAexc
 
 Needed: (All Plugins are in .zip folder)
 - Skript (Link: https://github.com/SkriptLang/Skript/releases)
