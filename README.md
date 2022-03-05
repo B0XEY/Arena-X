@@ -30,4 +30,4 @@ How to use
 - Now you want to set up your arena with points in the corrners 
 - Make suer thay are a good distance away for blocks and other things
 - Video to help with setup / loading / saving!
-- VIDEO
+- VIDEO LINK ()
